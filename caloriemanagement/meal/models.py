@@ -28,10 +28,6 @@ class Meal(models.Model):
         """ Meta class for Meal model """
         verbose_name = _('Meal')
         verbose_name_plural = _('Meals')
-        ordering = (
-            "user__first_name", "user__last_name",
-            "-date", "-time", "name"
-        )
 
     def __str__(self):
         return self.name

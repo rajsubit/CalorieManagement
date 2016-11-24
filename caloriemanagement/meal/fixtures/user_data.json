@@ -1,0 +1,202 @@
+[
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Sharma",
+      "first_name": "Nani maiya",
+      "username": "nanimaiya-sharma",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 2
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Jamarkattel",
+      "first_name": "Maiya",
+      "username": "maiya-jamarkattel",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 3
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Sigdel",
+      "first_name": "Kamala",
+      "username": "kamala-sigdel",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 4
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Adhikari",
+      "first_name": "Raju",
+      "username": "raju-adhikari",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 5
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Aryal",
+      "first_name": "Pragya",
+      "username": "pragya-aryal",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 6
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Devkota",
+      "first_name": "Nani maiya",
+      "username": "nanimaiya-devkota",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 7
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Devkota",
+      "first_name": "Bhavana",
+      "username": "bhavana-devkota",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 7
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Thami",
+      "first_name": "Shiva Shankar",
+      "username": "shivashankar-thami",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 8
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Niraula",
+      "first_name": "Nanu",
+      "username": "nanu-niraula",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 9
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Siwakoti",
+      "first_name": "Anushka",
+      "username": "anushka-siwakoti",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 10
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Bhandari",
+      "first_name": "Nirmala",
+      "username": "nirmala-bhandari",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 11
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Niraula",
+      "first_name": "Anu",
+      "username": "anu-niraula",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 12
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Suntakhane",
+      "first_name": "Pramila",
+      "username": "pramila-suntakhane",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 13
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Pokharel",
+      "first_name": "Radha",
+      "username": "radha-pokharel",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 14
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Wagle",
+      "first_name": "Balram",
+      "username": "balram-wagle",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 15
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Pokharel",
+      "first_name": "Sitaram",
+      "username": "sitaram-pokharel",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 16
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Paudel",
+      "first_name": "Kumar",
+      "username": "kumar-paudel",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 17
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Thapa",
+      "first_name": "Komal",
+      "username": "komal-thapa",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 18
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Chaulagai",
+      "first_name": "Radha",
+      "username": "radha-chaulagai",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 19
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "last_name": "Paudel",
+      "first_name": "Pragya",
+      "username": "pragya-paudel",
+      "password": "pbkdf2_sha256$30000$ISf0pHfSGVHH$1SEdJ59LuoHRyIrHIpzVUe9XxdrR1ocz5CS8CPJYeAc="
+    },
+    "pk": 20
+  }
+]
