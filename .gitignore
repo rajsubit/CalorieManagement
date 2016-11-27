@@ -1,5 +1,5 @@
 vcalorie/*
-../valorie/*
+../vcalorie/*
 *.py[cod]
 __pycache__
 *.orig
