@@ -39,12 +39,16 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 
+THIRD_PARTY_APPS = [
+    'rest_framework',  # API
+]
+
 # Custom Installed_Apps
 LOCAL_APPS = [
     'meal',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

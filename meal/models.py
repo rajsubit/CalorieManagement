@@ -19,6 +19,8 @@ class Meal(models.Model):
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
     calorie = models.FloatField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     # Object Manager:
     objects = MealManager()
