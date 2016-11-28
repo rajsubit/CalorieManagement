@@ -1,5 +1,10 @@
+# virtualenv
 vcalorie/*
-../vcalorie/*
+
+# python
 *.py[cod]
 __pycache__
 *.orig
+
+# npm
+React/node_modules/*
