@@ -24,6 +24,7 @@
     "react": "~0.13.3",
     "lodash": "~4.16.6",
     "toastr": "~2.1.0",
-    "object-assign": "~4.1.0"
+    "object-assign": "~4.1.0",
+    "axios": "~0.15.3"
   }
 }

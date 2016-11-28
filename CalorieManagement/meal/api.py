@@ -1,13 +1,13 @@
 from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView
+    ListAPIView, RetrieveUpdateDestroyAPIView
 )
 
 from .models import Meal
 from .serializers import MealSerializer
 
 
-class MealListAPI(ListCreateAPIView):
-    """ API to create or list meals """
+class MealListAPI(ListAPIView):
+    """ API to list meals """
 
     serializer_class = MealSerializer
     queryset = Meal.objects.all()
