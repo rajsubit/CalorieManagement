@@ -50461,11 +50461,49 @@ var ManageMealPage = React.createClass({displayName: "ManageMealPage",
 		return this.setState({meal: this.state.meal});
 	},
 
+	mealFormIsValid: function() {
+		var formIsValid = true;
+		this.state.erros = {};
+		console.log('meal', this.state.meal.name, this.state.meal.name.length);
+		if (this.state.meal.name.length < 1){
+			this.state.errors.name = "Meal Name is Required";
+			formIsValid = false;
+		}
+		if (this.state.meal.date.length < 1){
+			this.state.errors.date = "Date is Required";
+			formIsValid = false;	
+		} else if (this.state.meal.date.split('-').length !== 3) {
+			this.state.errors.date = "Date should be in month/day/year format";
+			formIsValid = false;
+		}
+		console.log('time', this.state.meal.time);
+		if (this.state.meal.time.length < 1){
+			this.state.errors.time = "Time is Required";
+			formIsValid = false;	
+		} else if (this.state.meal.time.split(':').length !== 3) {
+			this.state.errors.time = "Time should be in hour:minute AM/PM format";
+			formIsValid = false;
+		}
+		if (this.state.meal.calorie.length < 1){
+			this.state.errors.calorie = "Calorie is Required";
+			formIsValid = false;
+		} else if (isNaN(parseInt(this.state.meal.calorie))) {
+			this.state.errors.calorie = "Calorie should be a Number";
+			formIsValid = false;
+		}
+		this.setState({errors: this.state.errors});
+		return formIsValid;
+	},
+
 	saveMeal: function(event){
 		event.preventDefault();
-		if (this.state.meal.id) {
-			MealActions.updateMeal(this.state.meal);
+		if (!this.mealFormIsValid()){
+			return;
 		}
+
+		// if (this.state.meal.id) {
+		// 	MealActions.updateMeal(this.state.meal);
+		// }
 		// else {
 		// 	MealActions.createAuthor(this.state.author);
 		// }
@@ -50510,21 +50548,23 @@ var MealForm = React.createClass({displayName: "MealForm",
 					label: "Meal Name", 
 					value: this.props.meal.name, 
 					onChange: this.props.onChange, 
-					error: this.props.errors.mealName}), 
+					error: this.props.errors.name}), 
 				React.createElement(Input, {
 					name: "date", 
 					type: "date", 
 					label: "Date", 
 					value: this.props.meal.date, 
 					onChange: this.props.onChange, 
-					error: this.props.errors.date}), 
+					error: this.props.errors.date, 
+					placeholder: "Date should be in month/day/year format"}), 
 				React.createElement(Input, {
 					name: "time", 
 					type: "time", 
 					label: "Time", 
 					value: this.props.meal.time, 
 					onChange: this.props.onChange, 
-					error: this.props.errors.time}), 
+					error: this.props.errors.time, 
+					placeholder: "Time should be in hour:minute AM/PM format"}), 
 				React.createElement(Input, {
 					name: "calorie", 
 					type: "number", 
@@ -50532,7 +50572,8 @@ var MealForm = React.createClass({displayName: "MealForm",
 					value: this.props.meal.calorie, 
 					onChange: this.props.onChange, 
 					error: this.props.errors.calorie, 
-					min: "0"}), 
+					min: "0", 
+					placeholder: "Calorie input should be a number greater than 0"}), 
 
 				React.createElement("input", {type: "submit", 
 					id: "mealSaveButton", 
