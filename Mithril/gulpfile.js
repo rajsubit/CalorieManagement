@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var connect = require('gulp-connect'); // runs a local dev server
 var open = require('gulp-open'); // opens a url in a web browser
 var browserify = require('browserify'); // bundles js
+var mithrilify = require('mithrilify'); // transforms mithril to js
 var source = require('vinyl-source-stream'); // Use conventional text streams with Gulp
 var concat = require('gulp-concat'); // concatenates files
 var lint = require('gulp-eslint'); // lint js files including JSX
@@ -49,6 +50,7 @@ gulp.task('html', function(){
 
 gulp.task('js', function(){
 	browserify(config.paths.mainJs)
+		.transform(mithrilify)
 		.bundle()
 		.on('error', console.error.bind(console))
 		.pipe(source('bundle.js'))
@@ -82,4 +84,4 @@ gulp.task('watch', function(){
 	gulp.watch(config.paths.js, ['js', 'lint']);
 });
 
-gulp.task('default', ['html', 'js', 'css', 'images', 'lint', 'open', 'watch']);
+gulp.task('default', ['html', 'js', 'css', 'images', 'open', 'watch', 'lint']);
