@@ -72,9 +72,54 @@ var MealApi = {
         return clone(meal);
     },
 
-    deleteMeal: function(id) {
-        // console.log('Pretend this just deleted the author from the DB via an AJAX call...');
-        // _.remove(authors, { id: id});
+    // createMeal: function(meal) {
+    //     var mealCreateUrl = 'http://localhost:8000/meal/api/create/';
+    //     var data = {
+    //         user: meal.user,
+    //         name: meal.name,
+    //         date: meal.date,
+    //         time: meal.time,
+    //         calorie: meal.calorie
+    //     };
+    //     $.ajax({
+    //         url: mealUpdateUrl,
+    //         type: "PUT",
+    //         data: JSON.stringify(data),
+    //         dataType: 'json',
+    //         contentType: "application/json",
+    //         success: function(responseData) {
+    //             console.log('Data updated successfully');
+    //         },
+    //         error: function( xhr, status, errorThrown ) {
+    //             alert(errorThrown);
+    //         }
+    //     });
+    //     return clone(meal);
+    // },
+
+    deleteMeal: function(meal) {
+        var mealDeleteUrl = 'http://localhost:8000/meal/api/detail/' + meal.id.toString() + '/';
+        var data = {
+            user: meal.user,
+            name: meal.name,
+            date: meal.date,
+            time: meal.time,
+            calorie: meal.calorie
+        };
+        $.ajax({
+            url: mealDeleteUrl,
+            type: "DELETE",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: "application/json",
+            success: function(responseData) {
+                console.log('Data deleted successfully');
+            },
+            error: function( xhr, status, errorThrown ) {
+                alert(errorThrown);
+            }
+        });
+        return clone(meal);
     }
 };
 

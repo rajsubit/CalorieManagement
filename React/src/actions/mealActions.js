@@ -18,21 +18,21 @@ var MealActions = {
 
 	updateMeal: function(meal) {
 		var updatedMeal = MealApi.updateMeal(meal);
-
 		Dispatcher.dispatch({
 			actionType: ActionTypes.UPDATE_MEAL,
 			meal: updatedMeal
 		});
+		return updatedMeal;
+	},
+
+	deleteMeal: function(meal) {
+		MealApi.deleteMeal(meal);
+
+		Dispatcher.dispatch({
+			actionType: ActionTypes.DELETE_MEAL,
+			meal: meal
+		});
 	}
-
-	// deleteAuthor: function(id) {
-	// 	AuthorApi.deleteAuthor(id);
-
-	// 	Dispatcher.dispatch({
-	// 		actionType: ActionTypes.DELETE_AUTHOR,
-	// 		id: id
-	// 	});
-	// }
 };
 
 module.exports = MealActions;

@@ -50211,21 +50211,21 @@ var MealActions = {
 
 	updateMeal: function(meal) {
 		var updatedMeal = MealApi.updateMeal(meal);
-
 		Dispatcher.dispatch({
 			actionType: ActionTypes.UPDATE_MEAL,
 			meal: updatedMeal
 		});
+		return updatedMeal;
+	},
+
+	deleteMeal: function(meal) {
+		MealApi.deleteMeal(meal);
+
+		Dispatcher.dispatch({
+			actionType: ActionTypes.DELETE_MEAL,
+			meal: meal
+		});
 	}
-
-	// deleteAuthor: function(id) {
-	// 	AuthorApi.deleteAuthor(id);
-
-	// 	Dispatcher.dispatch({
-	// 		actionType: ActionTypes.DELETE_AUTHOR,
-	// 		id: id
-	// 	});
-	// }
 };
 
 module.exports = MealActions;
@@ -50305,9 +50305,54 @@ var MealApi = {
         return clone(meal);
     },
 
-    deleteMeal: function(id) {
-        // console.log('Pretend this just deleted the author from the DB via an AJAX call...');
-        // _.remove(authors, { id: id});
+    // createMeal: function(meal) {
+    //     var mealCreateUrl = 'http://localhost:8000/meal/api/create/';
+    //     var data = {
+    //         user: meal.user,
+    //         name: meal.name,
+    //         date: meal.date,
+    //         time: meal.time,
+    //         calorie: meal.calorie
+    //     };
+    //     $.ajax({
+    //         url: mealUpdateUrl,
+    //         type: "PUT",
+    //         data: JSON.stringify(data),
+    //         dataType: 'json',
+    //         contentType: "application/json",
+    //         success: function(responseData) {
+    //             console.log('Data updated successfully');
+    //         },
+    //         error: function( xhr, status, errorThrown ) {
+    //             alert(errorThrown);
+    //         }
+    //     });
+    //     return clone(meal);
+    // },
+
+    deleteMeal: function(meal) {
+        var mealDeleteUrl = 'http://localhost:8000/meal/api/detail/' + meal.id.toString() + '/';
+        var data = {
+            user: meal.user,
+            name: meal.name,
+            date: meal.date,
+            time: meal.time,
+            calorie: meal.calorie
+        };
+        $.ajax({
+            url: mealDeleteUrl,
+            type: "DELETE",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: "application/json",
+            success: function(responseData) {
+                console.log('Data deleted successfully');
+            },
+            error: function( xhr, status, errorThrown ) {
+                alert(errorThrown);
+            }
+        });
+        return clone(meal);
     }
 };
 
@@ -50464,7 +50509,6 @@ var ManageMealPage = React.createClass({displayName: "ManageMealPage",
 	mealFormIsValid: function() {
 		var formIsValid = true;
 		this.state.erros = {};
-		console.log('meal', this.state.meal.name, this.state.meal.name.length);
 		if (this.state.meal.name.length < 1){
 			this.state.errors.name = "Meal Name is Required";
 			formIsValid = false;
@@ -50476,7 +50520,6 @@ var ManageMealPage = React.createClass({displayName: "ManageMealPage",
 			this.state.errors.date = "Date should be in month/day/year format";
 			formIsValid = false;
 		}
-		console.log('time', this.state.meal.time);
 		if (this.state.meal.time.length < 1){
 			this.state.errors.time = "Time is Required";
 			formIsValid = false;	
@@ -50500,15 +50543,27 @@ var ManageMealPage = React.createClass({displayName: "ManageMealPage",
 		if (!this.mealFormIsValid()){
 			return;
 		}
-
-		// if (this.state.meal.id) {
-		// 	MealActions.updateMeal(this.state.meal);
-		// }
+		var updatedMeal = null;
+		if (this.state.meal.id) {
+			updatedMeal = MealActions.updateMeal(this.state.meal);
+		}
 		// else {
 		// 	MealActions.createAuthor(this.state.author);
 		// }
+		console.log('meal', updatedMeal);
 		this.setState({dirty: false});
-		toastr.success('Meal is Saved.');
+		if (updatedMeal !== null){
+			toastr.success('Meal is Saved.');
+			this.transitionTo('meals');
+		}
+	},
+
+	deleteMeal: function(event) {
+		event.preventDefault();
+		if (this.state.meal.id) {
+			MealActions.deleteMeal(this.state.meal);
+		}
+		toastr.error('Meal is Deleted.');
 		this.transitionTo('meals');
 	},
 
@@ -50517,7 +50572,8 @@ var ManageMealPage = React.createClass({displayName: "ManageMealPage",
 			React.createElement(MealForm, {meal: this.state.meal, 
 				onChange: this.setMealState, 
 				onSave: this.saveMeal, 
-				errors: this.state.errors})
+				errors: this.state.errors, 
+				onClick: this.deleteMeal})
 		);
 	}
 });
@@ -50535,7 +50591,8 @@ var MealForm = React.createClass({displayName: "MealForm",
 		meal: React.PropTypes.object.isRequired,
 		onChange: React.PropTypes.func.isRequired,
 		onSave: React.PropTypes.func.isRequired,
-		errors: React.PropTypes.object
+		errors: React.PropTypes.object,
+		onClick: React.PropTypes.func.isRequired
 	},
 
 	render: function() {
@@ -50574,12 +50631,22 @@ var MealForm = React.createClass({displayName: "MealForm",
 					error: this.props.errors.calorie, 
 					min: "0", 
 					placeholder: "Calorie input should be a number greater than 0"}), 
-
-				React.createElement("input", {type: "submit", 
-					id: "mealSaveButton", 
-					value: "Save", 
-					className: "btn btn-primary", 
-					onClick: this.props.onSave})
+				React.createElement("div", {className: "row"}, 
+					React.createElement("div", {className: "col-sm-6"}, 
+						React.createElement("input", {type: "submit", 
+							align: "left", 
+							id: "mealSaveButton", 
+							value: "Save", 
+							className: "btn btn-primary", 
+							onClick: this.props.onSave})
+					), 
+					React.createElement("div", {className: "col-sm-6"}, 
+						React.createElement("button", {
+							className: "btn btn-danger", 
+							align: "left", 
+							onClick: this.props.onClick}, "Delete")
+					)
+				)
 			)
 		);
 	}
@@ -50635,6 +50702,7 @@ module.exports = MealList;
 "use strict";
 
 var React = require('react');
+var Link = require('react-router').Link;
 var MealStore = require('../../stores/mealStore');
 var MealList = require('./mealList');
 
@@ -50659,7 +50727,6 @@ var MealPage = React.createClass({displayName: "MealPage",
 	},
 
 	render: function() {
-		console.log(this.state.meals);
 		return (
 			React.createElement("div", null, 
 				React.createElement("h1", null, "Meal List"), 
@@ -50671,7 +50738,7 @@ var MealPage = React.createClass({displayName: "MealPage",
 
 module.exports = MealPage;
 
-},{"../../stores/mealStore":219,"./mealList":213,"react":202}],215:[function(require,module,exports){
+},{"../../stores/mealStore":219,"./mealList":213,"react":202,"react-router":33}],215:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
@@ -50715,10 +50782,11 @@ var DefaultRoute = Router.DefaultRoute;
 var Route = Router.Route;
 
 var routes = (
-	React.createElement(Route, {name: "app", path: "/", handler: require('./components/app')}, 
-		React.createElement(DefaultRoute, {handler: require('./components/homePage')}), 
-		React.createElement(Route, {name: "meals", handler: require('./components/meals/mealPage')}), 
-		React.createElement(Route, {name: "manageMeal", path: "meal/:id", handler: require('./components/meals/manageMealPage')})
+	React.createElement(Route, {name: "app", path: "/", handler: require("./components/app")}, 
+		React.createElement(DefaultRoute, {handler: require("./components/homePage")}), 
+		React.createElement(Route, {name: "meals", handler: require("./components/meals/mealPage")}), 
+		React.createElement(Route, {name: "addMeal", path: "meal", handler: require("./components/meals/manageMealPage")}), 
+		React.createElement(Route, {name: "manageMeal", path: "meal/:id", handler: require("./components/meals/manageMealPage")})
 	)
 );
 
@@ -50767,6 +50835,22 @@ Dispatcher.register(function(action){
 	switch(action.actionType){
 		case ActionTypes.INITIALIZE:
 			mealList = action.initialData.meals;
+			MealStore.emitChange();
+			break;
+		case ActionTypes.CREATE_MEAL:
+			mealList.push(action.meal);
+			MealStore.emitChange();
+			break;
+		case ActionTypes.UPDATE_MEAL:
+			var existingMeal = _.find(mealList, {id: action.meal.id});
+			var existingMealIndex = _.indexOf(mealList, existingMeal);
+			mealList.splice(existingMealIndex, 1, action.meal);
+			MealStore.emitChange();
+			break;
+		case ActionTypes.DELETE_MEAL:
+			_.remove(mealList, function(meal){
+				return action.id === meal.id;
+			});
 			MealStore.emitChange();
 			break;
 		default:

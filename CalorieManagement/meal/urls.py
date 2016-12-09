@@ -1,9 +1,15 @@
 from django.conf.urls import url
 
-from .api import MealListAPI, MealDetailAPI
+from .api import MealCreateAPI, MealListAPI, MealDetailAPI
 
 
 urlpatterns = [
+    url(
+        regex=r'^api/create/$',
+        view=MealCreateAPI.as_view(),
+        name='meal_create_api'
+    ),
+
     url(
         regex=r'^api/list/$',
         view=MealListAPI.as_view(),

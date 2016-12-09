@@ -42,6 +42,22 @@ Dispatcher.register(function(action){
 			mealList = action.initialData.meals;
 			MealStore.emitChange();
 			break;
+		case ActionTypes.CREATE_MEAL:
+			mealList.push(action.meal);
+			MealStore.emitChange();
+			break;
+		case ActionTypes.UPDATE_MEAL:
+			var existingMeal = _.find(mealList, {id: action.meal.id});
+			var existingMealIndex = _.indexOf(mealList, existingMeal);
+			mealList.splice(existingMealIndex, 1, action.meal);
+			MealStore.emitChange();
+			break;
+		case ActionTypes.DELETE_MEAL:
+			_.remove(mealList, function(meal){
+				return action.id === meal.id;
+			});
+			MealStore.emitChange();
+			break;
 		default:
 			// no opp
 	}

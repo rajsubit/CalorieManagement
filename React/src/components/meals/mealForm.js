@@ -8,7 +8,8 @@ var MealForm = React.createClass({
 		meal: React.PropTypes.object.isRequired,
 		onChange: React.PropTypes.func.isRequired,
 		onSave: React.PropTypes.func.isRequired,
-		errors: React.PropTypes.object
+		errors: React.PropTypes.object,
+		onClick: React.PropTypes.func.isRequired
 	},
 
 	render: function() {
@@ -47,12 +48,22 @@ var MealForm = React.createClass({
 					error={this.props.errors.calorie}
 					min="0"
 					placeholder="Calorie input should be a number greater than 0" />
-
-				<input type="submit"
-					id="mealSaveButton"
-					value="Save"
-					className="btn btn-primary"
-					onClick={this.props.onSave} />
+				<div className="row">
+					<div className="col-sm-6">
+						<input type="submit"
+							align="left"
+							id="mealSaveButton"
+							value="Save"
+							className="btn btn-primary"
+							onClick={this.props.onSave} />
+					</div>
+					<div className="col-sm-6">
+						<button
+							className="btn btn-danger"
+							align="left"
+							onClick={this.props.onClick}>Delete</button>
+					</div>
+				</div>
 			</form>
 		);
 	}

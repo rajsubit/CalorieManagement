@@ -41,7 +41,6 @@ var ManageMealPage = React.createClass({
 	mealFormIsValid: function() {
 		var formIsValid = true;
 		this.state.erros = {};
-		console.log('meal', this.state.meal.name, this.state.meal.name.length);
 		if (this.state.meal.name.length < 1){
 			this.state.errors.name = "Meal Name is Required";
 			formIsValid = false;
@@ -53,7 +52,6 @@ var ManageMealPage = React.createClass({
 			this.state.errors.date = "Date should be in month/day/year format";
 			formIsValid = false;
 		}
-		console.log('time', this.state.meal.time);
 		if (this.state.meal.time.length < 1){
 			this.state.errors.time = "Time is Required";
 			formIsValid = false;	
@@ -77,15 +75,27 @@ var ManageMealPage = React.createClass({
 		if (!this.mealFormIsValid()){
 			return;
 		}
-
-		// if (this.state.meal.id) {
-		// 	MealActions.updateMeal(this.state.meal);
-		// }
+		var updatedMeal = null;
+		if (this.state.meal.id) {
+			updatedMeal = MealActions.updateMeal(this.state.meal);
+		}
 		// else {
 		// 	MealActions.createAuthor(this.state.author);
 		// }
+		console.log('meal', updatedMeal);
 		this.setState({dirty: false});
-		toastr.success('Meal is Saved.');
+		if (updatedMeal !== null){
+			toastr.success('Meal is Saved.');
+			this.transitionTo('meals');
+		}
+	},
+
+	deleteMeal: function(event) {
+		event.preventDefault();
+		if (this.state.meal.id) {
+			MealActions.deleteMeal(this.state.meal);
+		}
+		toastr.error('Meal is Deleted.');
 		this.transitionTo('meals');
 	},
 
@@ -94,7 +104,8 @@ var ManageMealPage = React.createClass({
 			<MealForm meal={this.state.meal}
 				onChange={this.setMealState}
 				onSave={this.saveMeal}
-				errors={this.state.errors} />
+				errors={this.state.errors}
+				onClick={this.deleteMeal} />
 		);
 	}
 });

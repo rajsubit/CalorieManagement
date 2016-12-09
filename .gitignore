@@ -7,4 +7,4 @@ __pycache__
 *.orig
 
 # npm
-React/node_modules/*
+node_modules/

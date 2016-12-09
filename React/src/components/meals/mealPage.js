@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require('react');
+var Link = require('react-router').Link;
 var MealStore = require('../../stores/mealStore');
 var MealList = require('./mealList');
 
@@ -25,7 +26,6 @@ var MealPage = React.createClass({
 	},
 
 	render: function() {
-		console.log(this.state.meals);
 		return (
 			<div>
 				<h1>Meal List</h1>
