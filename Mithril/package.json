@@ -1,6 +1,6 @@
 {
-  "name": "mithril",
-  "version": "5.6.0",
+  "name": "mithrilApp",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,17 +9,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "gulp-open": "~1.0.0",
-    "gulp": "~3.9.0",
-    "gulp-connect": "~2.2.0",
-    "vinyl-source-stream": "~1.1.0",
-    "browserify": "~11.0.1",
-    "jquery": "~2.1.4",
     "bootstrap": "~3.3.5",
+    "browserify": "~11.0.1",
+    "gulp": "~3.9.0",
     "gulp-concat": "~2.6.0",
+    "gulp-connect": "~2.2.0",
     "gulp-eslint": "~0.15.0",
+    "gulp-open": "~1.0.0",
+    "jquery": "~2.1.4",
     "lodash": "~4.16.6",
+    "mithril": "^0.2.5",
+    "object-assign": "~4.1.0",
     "toastr": "~2.1.0",
-    "object-assign": "~4.1.0"
+    "vinyl-source-stream": "~1.1.0"
   }
 }
