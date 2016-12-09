@@ -11,8 +11,12 @@ var Header = component({
 		return m("nav", {class: "navbar navbar-default"},
 				m("div", {class: "container-fluid"},
 					m("ul", {class: "nav navbar-nav"},
-						m("li", "Home"),
-						m("li", "Meals")
+						m("li",
+							m("a", {href: "#"}, "Home")
+						),
+						m("li",
+							m("a", {href: "#"}, "Meals")
+						)
 					)
 				)
 			);
