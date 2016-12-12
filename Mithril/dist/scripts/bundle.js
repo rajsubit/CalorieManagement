@@ -2595,15 +2595,425 @@ var factory = exports.factory = function factory(struct) {
 },{}],5:[function(require,module,exports){
 "use strict";
 
+var _validatex = require("validatex");
+
+var isFunction = function isFunction(data) {
+  return typeof data === "function";
+};
+
+var isArray = function isArray(data) {
+  return data instanceof Array;
+};
+
+var isValidValidator = function isValidValidator(validator) {
+  return isFunction(validator) || isArray(validator);
+};
+
+function prop(model, field, defaultValue, multipleErrors, projector) {
+  var initialState = defaultValue || null;
+  var previousState = null;
+  var state = model._config[field].modifier ? model._config[field].modifier(initialState, previousState) : initialState;
+
+  var aclosure = function aclosure(value, doProject) {
+    if (arguments.length === 0) return state;
+
+    var stateChanged = state !== value;
+
+    previousState = state;
+    state = model._config[field].modifier ? model._config[field].modifier(value, previousState) : value;
+
+    var field_projector = model._config[field].projector;
+    if (field_projector && stateChanged && doProject !== false) {
+      field_projector(value, model.data());
+    }
+
+    if (!field_projector && projector && stateChanged && doProject !== false) {
+      projector(model.data());
+    }
+  };
+
+  aclosure.isDirty = function () {
+    return initialState !== state;
+  };
+
+  aclosure.setAndValidate = function (value) {
+    aclosure(value);
+    aclosure.isValid();
+  };
+
+  aclosure.isValid = function (attach_error) {
+    var error = void 0,
+        cleaner = void 0,
+        value = void 0;
+    var config = model._config[field];
+    cleaner = config.cleaner;
+    value = cleaner ? cleaner(aclosure()) : aclosure();
+
+    var validator = isFunction(config) || isArray(config) ? config : config.validator;
+
+    error = (0, _validatex.validateSingle)(value, validator, multipleErrors, model.data(), field);
+
+    if (attach_error !== false) {
+      aclosure.error(error ? error : undefined);
+    }
+
+    return error === undefined;
+  };
+
+  aclosure.reset = function (doProject) {
+    doProject === false ? aclosure(initialState, false) : aclosure(initialState);
+    aclosure.error(undefined);
+  };
+
+  aclosure.error = function () {
+    var state;
+    return function (error) {
+      if (arguments.length === 0) return state;
+      state = error;
+    };
+  }();
+
+  aclosure.setInitialValue = function (value) {
+    initialState = value;
+  };
+
+  return aclosure;
+}
+
+module.exports = function (config) {
+  var multipleErrors = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+  var projector = arguments[2];
+
+  var formModel = {
+    _config: config,
+    isValid: function isValid(attach_error) {
+      var _this = this;
+
+      var truthPool = Object.keys(config).reduce(function (pool, key) {
+        pool.push(_this[key].isValid(attach_error));
+        return pool;
+      }, []);
+
+      return truthPool.every(function (value) {
+        return value === true;
+      });
+    },
+    isDirty: function isDirty() {
+      var _this2 = this;
+
+      return Object.keys(config).some(function (akey) {
+        return _this2[akey].isDirty();
+      });
+    },
+    data: function data(init, setAsInitialValue) {
+      var _this3 = this;
+
+      if (init) {
+        Object.keys(init).forEach(function (key) {
+          var value = init[key];
+          if (config[key]) {
+            var field = _this3[key];
+            field(value, false);
+            setAsInitialValue && field.setInitialValue(value);
+          }
+        });
+
+        projector && projector(this.data());
+      } else {
+        return Object.keys(config).reduce(function (data, key) {
+          var cleaner = config[key].cleaner;
+          var value = _this3[key]();
+          data[key] = cleaner ? cleaner(value) : value;
+          return data;
+        }, {});
+      }
+    },
+    setInitialValue: function setInitialValue(data) {
+      var _this4 = this;
+
+      Object.keys(config).forEach(function (key) {
+        _this4[key].setInitialValue(data[key]);
+      });
+    },
+    error: function error(supplied_error) {
+      var _this5 = this;
+
+      var dict = {};
+
+      if (arguments.length === 0) {
+        return Object.keys(config).reduce(function (error, key) {
+          error[key] = _this5[key].error();
+          return error;
+        }, {});
+      } else {
+        Object.keys(config).forEach(function (key) {
+          _this5[key].error(supplied_error[key] ? supplied_error[key] : undefined);
+        });
+      };
+    },
+    reset: function reset() {
+      var _this6 = this;
+
+      Object.keys(config).forEach(function (key) {
+        _this6[key].reset(false);
+        _this6[key].error(undefined);
+      });
+
+      projector && projector(this.data());
+    },
+    getUpdates: function getUpdates() {
+      var _this7 = this;
+
+      return Object.keys(config).reduce(function (updates, key) {
+        if (_this7[key].isDirty()) {
+          var cleaner = config[key].cleaner;
+          var value = _this7[key]();
+
+          updates[key] = cleaner ? cleaner(value) : value;
+        }
+        return updates;
+      }, {});
+    }
+  };
+
+  Object.keys(config).forEach(function (key) {
+    var field = config[key];
+    if (!isValidValidator(field) && !isValidValidator(field.validator)) {
+      throw Error("'" + key + "' needs a validator.");
+    }
+    formModel[key] = prop(formModel, key, field.default, multipleErrors, projector);
+  });
+
+  return formModel;
+};
+},{"validatex":6}],6:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var SkipValidation = exports.SkipValidation = function SkipValidation(message) {
+	this.name = "SkipValidation";
+	this.message = message;
+};
+
+var validateSingle = exports.validateSingle = function validateSingle(data, validators, multipleErrors, all, key) {
+	var errors = [];
+
+	if (typeof validators === "function") {
+		validators = [validators];
+	}
+
+	for (var i = 0; i < validators.length; i++) {
+		try {
+			var error = validators[i](data, all);
+			if (typeof error === "string") {
+				errors.push(error.replace("{value}", data).replace("{key}", key));
+			}
+		} catch (err) {
+			if (err instanceof SkipValidation) {
+				break;
+			}
+		}
+	}
+
+	if (multipleErrors === true) return errors;
+
+	if (errors.length > 0) return errors[0];
+};
+
+var validate = exports.validate = function validate(data, validators, multipleErrors) {
+	if (!validators) return;
+
+	var errors = {};
+	var noError = true;
+
+	if ((typeof validators === "undefined" ? "undefined" : _typeof(validators)) === "object" && !validators.length) {
+		for (var prop in validators) {
+			if (validators.hasOwnProperty(prop)) {
+				var error = validateSingle(data[prop], validators[prop], multipleErrors, data, prop);
+
+				if (error !== undefined) {
+					noError = false;
+				}
+
+				errors[prop] = error;
+			}
+		}
+
+		return noError ? undefined : errors;
+	}
+
+	errors = validateSingle(data, validators, multipleErrors);
+	return errors;
+};
+
+var required = exports.required = function required(flag, error) {
+	function isNullLike(value) {
+		return value === undefined || value === "" || value === null;
+	}
+
+	return function (value) {
+		if (flag && isNullLike(value)) {
+			return error || "This field is required.";
+		} else if (!flag && isNullLike(value)) {
+			// skip rest of the validators
+			throw new SkipValidation();
+		}
+	};
+};
+
+var isNumber = exports.isNumber = function isNumber(error) {
+	return function (value) {
+		if (typeof value !== "number" || isNaN(value)) {
+			return error || "'{value}' is not a valid number.";
+		}
+	};
+};
+
+var isString = exports.isString = function isString(error) {
+	return function (value) {
+		if (typeof value !== "string") {
+			return error || "'{value}' is not a valid string.";
+		}
+	};
+};
+
+var isFunction = exports.isFunction = function isFunction(error) {
+	return function (value) {
+		if (typeof value !== "function") {
+			return error || "Expected a function.";
+		}
+	};
+};
+
+var isObject = exports.isObject = function isObject(error) {
+	return function (value) {
+		if (value !== Object(value)) {
+			return error || "Expected an object.";
+		}
+	};
+};
+
+var isArray = exports.isArray = function isArray(error) {
+	return function (value) {
+		if (Object.prototype.toString.call(value) !== "[object Array]") {
+			return error || "Expected an array.";
+		}
+	};
+};
+
+var length = exports.length = function length(_length, error) {
+	return function (value) {
+		var str = value + "";
+		if (str.length !== _length) {
+			return error || "It must be " + _length + " characters long.";
+		}
+	};
+};
+
+var isEmail = exports.isEmail = function isEmail(error) {
+	return function (value) {
+		var pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		if (!pattern.test(value)) {
+			return error || "Invalid email id.";
+		}
+	};
+};
+
+var equalsTo = exports.equalsTo = function equalsTo(key, error) {
+	return function (value, all) {
+		if (value !== all[key]) {
+			return error || "'{key}' and '" + key + "' do not match.";
+		}
+	};
+};
+
+var minLength = exports.minLength = function minLength(length, error) {
+	return function (value) {
+		var str = value + "";
+		if (str.length < length) {
+			return error || "It must be at least " + length + " characters long.";
+		}
+	};
+};
+
+var maxLength = exports.maxLength = function maxLength(length, error) {
+	return function (value) {
+		var str = value + "";
+		if (str.length > length) {
+			return error || "It must be at most " + length + " characters long.";
+		}
+	};
+};
+
+var isBoolean = exports.isBoolean = function isBoolean(error) {
+	return function (value) {
+		if (value !== true && value !== false) {
+			return error || "Invalid boolean value.";
+		}
+	};
+};
+
+var within = exports.within = function within(list, error) {
+	return function (value) {
+		if (!(value instanceof Array)) {
+			value = [value];
+		}
+
+		var odds = [];
+
+		for (var index = 0; index < value.length; index++) {
+			if (list.indexOf(value[index]) === -1) {
+				odds.push(value[index]);
+			}
+		}
+
+		if (odds.length > 0) {
+			return error || "[" + odds + "] do not fall under the allowed list.";
+		}
+	};
+};
+
+var excludes = exports.excludes = function excludes(list, error) {
+	return function (value) {
+		if (!(value instanceof Array)) {
+			value = [value];
+		}
+
+		var odds = [];
+
+		for (var index = 0; index < value.length; index++) {
+			if (list.indexOf(value[index]) !== -1) {
+				odds.push(value[index]);
+			}
+		}
+
+		if (odds.length > 0) {
+			return error || "[" + odds + "] fall under restricted values.";
+		}
+	};
+};
+
+var pattern = exports.pattern = function pattern(regex, error) {
+	return function (value) {
+		if (!regex.test(value)) {
+			return error || "'{value}' does not match with the pattern.";
+		}
+	};
+};
+},{}],7:[function(require,module,exports){
+"use strict";
+
 var m = require('mithril');
 var component = require('mithril-componentx');
 
 var Header = require('./common/header.js');
 
 var App = component({
-	oninit: function(vnode) {
-		console.log('app init');
-	},
 	view: function(vnode){
 		return [
 					m(Header),
@@ -2616,25 +3026,22 @@ var App = component({
 
 module.exports = App;
 
-},{"./common/header.js":6,"mithril":4,"mithril-componentx":2}],6:[function(require,module,exports){
+},{"./common/header.js":8,"mithril":4,"mithril-componentx":2}],8:[function(require,module,exports){
 "use strict";
 
 var m = require('mithril');
 var component = require('mithril-componentx');
 
 var Header = component({
-	oninit: function(vnode){
-		console.log('init');
-	},
 	view: function(vnode){
 		return m("nav", {class: "navbar navbar-default"},
 				m("div", {class: "container-fluid"},
 					m("ul", {class: "nav navbar-nav"},
 						m("li",
-							m("a", {href: "#"}, "Home")
+							m("a", {href: "#", config: m.route}, "Home")
 						),
 						m("li",
-							m("a", {href: "#"}, "Meals")
+							m("a", {href: "/meals/", config: m.route}, "Meals")
 						)
 					)
 				)
@@ -2644,24 +3051,62 @@ var Header = component({
 
 module.exports = Header;
 
-},{"mithril":4,"mithril-componentx":2}],7:[function(require,module,exports){
+},{"mithril":4,"mithril-componentx":2}],9:[function(require,module,exports){
+"use strict";
+
+var m = require('mithril');
+var component = require('mithril-componentx');
+var Validatex = require('validatex');
+
+var required = Validatex.required; 
+
+var Input = component({
+	name: "field",
+	attrSchema: {
+		model: required(true),
+		type: required(true),
+		label: required(true)
+	},
+
+	view: function(vnode) {
+		var myAttrs = vnode.attrs;
+		var wrapperClass = "form-group";
+		if (myAttrs.model.error()){
+			wrapperClass += " " + "has-error";
+		}
+		var inputAttrs = {
+			type: myAttrs.type,
+			class: "form-control",
+			placeholder: myAttrs.placeholder
+		};
+		inputAttrs.value = myAttrs.model();
+		inputAttrs.onchange = m.withAttr("value", myAttrs.model);
+
+		return m("div", {class: wrapperClass},
+			m("label", {for: myAttrs.label}, myAttrs.label),
+			m("div", {class: "field"},
+				m("input", inputAttrs),
+				m("div", {class: "input"}, myAttrs.model.error())
+			)
+		);
+	}
+});
+
+module.exports = Input;
+
+},{"mithril":4,"mithril-componentx":2,"validatex":6}],10:[function(require,module,exports){
 "use strict";
 
 var _ = require('mithril');
-var m = require('mithril');
 var component = require('mithril-componentx');
 
 var App = require('./app.js');
 
 var home = component({
-	oninit: function(vnode) {
-		console.log('homepage init');
-	},
-
 	view: function(vnode){
-		return m("div", {class: "jumbotron"},
-				m("h1", "User Calorie Management"),
-				m("p", "Django and Mithril App for managing calorie consumption of Users")
+		return _("div", {class: "jumbotron"},
+				_("h1", "User Calorie Management"),
+				_("p", "Django and Mithril App for managing calorie consumption of Users")
 			);
 	}
 });
@@ -2677,15 +3122,206 @@ var homePage = function(args) {
 };
 
 module.exports = homePage({});
-},{"./app.js":5,"mithril":4,"mithril-componentx":2}],8:[function(require,module,exports){
+},{"./app.js":7,"mithril":4,"mithril-componentx":2}],11:[function(require,module,exports){
+"use strict";
+
+var _ = require('mithril');
+var component = require('mithril-componentx');
+var powerform = require('powerform');
+var validatex = require('validatex');
+
+var App = require('../app.js');
+var MealForm = require('./mealForm.js');
+
+var isDate = function(date) {
+	var format = /^\d{4}-\d{2}-\d{2}$/;
+	if (!format.test(date)) {
+		return "Date should be in month/day/year format";
+	}
+};
+
+var isTime = function(time) {
+	var format = /^\d{2}:\d{2}$/;
+	if (!format.test(time)) {
+		return "Time should be in hh:mm AM/PM format";
+	}	
+};
+
+var isNumber = function(number) {
+	var format = /^\d+$/;
+	if (!format.test(number)) {
+		return "Calorie should be a Number";
+	}
+};
+
+var content = component({
+	oninit: function(vnode){
+		this.id = _.route.param("id");
+
+		this.model = powerform({
+			name: {validator:
+				[validatex.required(true, "Meal Name is required")]},
+			date: {validator:
+				[validatex.required(true, "Date is required"), isDate]},
+			time: {validator:
+				[validatex.required(true, "Time is required"), isTime]},
+			calorie: {validator:
+						[validatex.required(true, "Calorie is required"), isNumber]}
+		});
+	},
+
+	saveMeal: function(e) {
+		e.preventDefault();
+		console.log('Save Meal', this.model.data());
+		if (this.model.isValid()){
+			console.log("Save Meal", this.model.data);
+		}
+	},
+
+	view: function(vnode) {
+		return _(MealForm, {model: this.model, saveMeal: this.saveMeal.bind(this)});
+	}
+});
+
+var manageMealPage = function(args) {
+	console.log("manage meal page");
+	args.content = content;
+	return _(App, args);
+};
+
+module.exports = manageMealPage({});
+},{"../app.js":7,"./mealForm.js":12,"mithril":4,"mithril-componentx":2,"powerform":5,"validatex":6}],12:[function(require,module,exports){
+"use strict";
+
+var m = require('mithril');
+var component = require('mithril-componentx');
+var validatex = require('validatex');
+var required = validatex.required;
+
+var Input = require('../common/textInput.js');
+
+var MealForm = component({
+	attrSchema: {
+		model: required(true),
+		saveMeal: required(true)
+	},
+
+	view: function(vnode) {
+		var myAttrs = vnode.attrs;
+		return m("form", {class: "form"},
+			m("h1", "Manage Meal"),
+			m(Input,
+			{type: "text", model: myAttrs.model.name,
+			label: "Meal Name", placeholder: "Name of the Meal"}),
+			m(Input,
+			{type: "date", model: myAttrs.model.date,
+			label: "Date", placeholder: "Date should be in month/day/year format"}),
+			m(Input,
+			{type: "time", model: myAttrs.model.time,
+			label: "Time", placeholder: "Time should be in hour:minute AM/PM format"}),
+			m(Input,
+			{type: "text", model: myAttrs.model.calorie,
+			label: "Calorie", placeholder: "Calorie input should be a number greater than 0"}),
+			m("div", {class: "row"},
+				m("div", {class: "col-sm-6"},
+					m("button",
+					{align: "left", class: "btn btn-primary", "onclick": myAttrs.saveMeal}, "Save")
+				)
+				// m("div", {class: "col-sm-6"},
+				// 	m("input",
+				// 	{align: "left", class: "btn btn-danger", "onClick": myAttrs.deleteMeal, value: "Delete"},
+				// 	"Delete")
+				// )
+			)
+		);
+	}
+});
+
+module.exports = MealForm;
+
+},{"../common/textInput.js":9,"mithril":4,"mithril-componentx":2,"validatex":6}],13:[function(require,module,exports){
+"use strict";
+
+var m = require('mithril');
+var component = require('mithril-componentx');
+
+var MealList = component({
+	getTableContent: function(vnode){
+		var mealList = [
+			{id: 1, name: "Rice", date: "2016-10-01", time: "09:00:00", calorie: 100},
+			{id: 2, name: "Meat", date: "2016-10-01", time: "12:00:00", calorie: 200},
+			{id: 3, name: "Banana", date: "2016-10-01", time: "15:00:00", calorie: 150}
+		];
+		return mealList.map(function(meal){
+			return m("tr", {dataId: meal.id}, 
+				m("td", meal.name),
+				m("td", meal.date),
+				m("td", meal.time),
+				m("td", meal.calorie)
+			);
+		});
+	},
+	view: function(vnode){
+		return m("div",
+				m("table", {class: "table"},
+					m("thead", 
+						m("th", "Meal Name"),
+						m("th", "Date"),
+						m("th", "Time"),
+						m("th", "Calorie")
+					),
+					m("tbody",
+						this.getTableContent()
+					)
+				)
+			);
+	}
+});
+
+module.exports = MealList;
+
+},{"mithril":4,"mithril-componentx":2}],14:[function(require,module,exports){
+"use strict";
+
+var _ = require('mithril');
+var m = require('mithril');
+var component = require('mithril-componentx');
+
+var App = require('../app.js');
+var MealList = require('./mealList.js');
+
+var meals = component({
+	view: function(vnode){
+		return m("div",
+				m("h1", "MealList"),
+				m(
+					"a",
+					{href: "/meals/add/", config: m.route, class: "btn btn-primary"},
+					"Add Meal"),
+				m(MealList)
+			);
+	}
+});
+
+var mealPage = function(args) {
+	args.content = meals;
+	return _(App, args);
+};
+
+module.exports = mealPage({});
+},{"../app.js":7,"./mealList.js":13,"mithril":4,"mithril-componentx":2}],15:[function(require,module,exports){
 var _ = require('mithril');
 
 var HomePage = require('./components/homePage.js');
+var MealPage = require('./components/meals/mealPage.js');
+var ManageMealPage = require('./components/meals/manageMealPage.js');
 
 _.route.mode = "hash";
 
 _.route(document.body, "/", {
-	"/": HomePage
+	"/": HomePage,
+	"/meals/": MealPage,
+	"/meals/add/": ManageMealPage
 });
 
-},{"./components/homePage.js":7,"mithril":4}]},{},[8]);
+},{"./components/homePage.js":10,"./components/meals/manageMealPage.js":11,"./components/meals/mealPage.js":14,"mithril":4}]},{},[15]);

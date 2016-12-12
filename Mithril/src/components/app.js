@@ -6,9 +6,6 @@ var component = require('mithril-componentx');
 var Header = require('./common/header.js');
 
 var App = component({
-	oninit: function(vnode) {
-		console.log('app init');
-	},
 	view: function(vnode){
 		return [
 					m(Header),

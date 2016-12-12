@@ -21,7 +21,9 @@
     "mithril": "^0.2.5",
     "mithril-componentx": "^0.5.0",
     "object-assign": "~4.1.0",
+    "powerform": "^2.6.2",
     "toastr": "~2.1.0",
+    "validatex": "^0.3.1",
     "vinyl-source-stream": "~1.1.0"
   },
   "devDependencies": {
