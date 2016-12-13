@@ -6,8 +6,14 @@ var component = require('mithril-componentx');
 
 var App = require('../app.js');
 var MealList = require('./mealList.js');
+var storeImport = require('elastic-store');
+var store = require('../../stores/mealStore.js');
 
 var meals = component({
+	oninit: function(vnode){
+		store.dispatch("meal",
+			{method: "get", url: 'http://localhost:8000/meal/api/list/', data: ''});
+	},
 	view: function(vnode){
 		return m("div",
 				m("h1", "MealList"),
@@ -15,7 +21,7 @@ var meals = component({
 					"a",
 					{href: "/meals/add/", config: m.route, class: "btn btn-primary"},
 					"Add Meal"),
-				m(MealList)
+				m(MealList, {mealData: store().meal.data})
 			);
 	}
 });

@@ -59,7 +59,6 @@ var content = component({
 });
 
 var manageMealPage = function(args) {
-	console.log("manage meal page");
 	args.content = content;
 	return _(App, args);
 };
