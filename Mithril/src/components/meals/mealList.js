@@ -3,8 +3,6 @@
 var m = require('mithril');
 var component = require('mithril-componentx');
 
-var store = require('../../stores/mealStore.js');
-
 var MealList = component({
 	getTableContent: function(vnode){
 		/*var mealList = [
@@ -14,7 +12,7 @@ var MealList = component({
 		]; */
 		var mealList = vnode.attrs.mealData;
 		return mealList.map(function(meal){
-			return m("tr", {dataId: meal.id}, 
+			return m("tr", {dataId: meal.id},
 				m("td", meal.name),
 				m("td", meal.date),
 				m("td", meal.time),

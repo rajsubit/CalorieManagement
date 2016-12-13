@@ -9,5 +9,6 @@ _.route.mode = "hash";
 _.route(document.body, "/", {
 	"/": HomePage,
 	"/meals/": MealPage,
-	"/meals/add/": ManageMealPage
+	"/meals/add/": ManageMealPage,
+	"/meals/add/:id/": ManageMealPage
 });

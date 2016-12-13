@@ -10,8 +10,7 @@ var Input = component({
 	name: "field",
 	attrSchema: {
 		model: required(true),
-		type: required(true),
-		label: required(true)
+		type: required(true)
 	},
 
 	view: function(vnode) {

@@ -6,7 +6,6 @@ var component = require('mithril-componentx');
 
 var App = require('../app.js');
 var MealList = require('./mealList.js');
-var storeImport = require('elastic-store');
 var store = require('../../stores/mealStore.js');
 
 var meals = component({

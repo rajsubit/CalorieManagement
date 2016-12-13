@@ -38,7 +38,7 @@ var api = function(actionPath, next, astore){
 			}
 
 			else if(payload.method === "delete"){
-				astore.dispatch(actionPath + ".delete", response.data);
+				astore.dispatch(actionPath + ".delete", payload.id);
 			}
 		})
 		.catch(function(error){
@@ -61,15 +61,6 @@ var actionTypes = function(initialData){
 			console.log('setdata', state.data);
 			return state;
 		},
-
-		getData: function(state){
-			return state;
-		},
-
-		getOneRecord: function(state, recordId){
-			var record = _.find(state.data, {id: recordId});
-			return record;
-		},
 		
 		create: function(state, newRecord) {
 			state.data.push(newRecord);			
@@ -81,13 +72,15 @@ var actionTypes = function(initialData){
 				return record.id === updatedRecord.id;
 			});
 			state.data.splice(index, 1, updatedRecord);
-			return updatedRecord;
+			return state;
 		},
 
-		delete: function(state, record) {
-			_.remove(state.data, function(arecord){
-				return arecord.id === record.id;
+		delete: function(state, recordId) {
+			var restData = _.filter(state.data, function(arecord){
+				return arecord.id + '' !== recordId;
 			});
+
+			state.data = restData;
 			return state;
 		}
 	};
