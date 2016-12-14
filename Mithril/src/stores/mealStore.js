@@ -68,6 +68,13 @@ var actionTypes = function(initialData){
 			}
 			return state;
 		},
+
+		unsetUserDetail: function(state){
+			if ("detail" in state){
+				state.detail = {};
+			}
+			return state;
+		},
 		
 		create: function(state, newRecord) {
 			state.data.push(newRecord);			

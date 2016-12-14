@@ -16,9 +16,6 @@ class UserAPI(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        print(kwargs.get('pk'))
-
 
 @api_view(["POST"])
 @renderer_classes([JSONRenderer])

@@ -10,6 +10,10 @@ var store = require('../../stores/mealStore.js');
 
 var meals = component({
 	oninit: function(vnode){
+		var user = store().user.detail;
+		if(!("id" in user)) {
+			m.route("/login/");
+		}
 		store.dispatch("meal",
 			{method: "get", url: 'http://localhost:8000/meal/api/list/', data: ''});
 	},

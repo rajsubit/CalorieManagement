@@ -31558,30 +31558,61 @@ module.exports = Input;
 
 var _ = require('mithril');
 var component = require('mithril-componentx');
+var axios = require('axios');
 
 var App = require('./app.js');
+var store = require('../stores/mealStore.js');
+
+var logout = function(){
+	axios({
+			url: 'http://localhost:8000/user/api/logout/',
+			method: "post",
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-CSRFToken"
+		})
+		.then(function(response){
+			if (response.status === 200){
+				store.dispatch("user.unsetUserDetail");
+				console.log(store().user.detail);
+				_.route('/');
+				_.redraw();
+			}
+			else {
+				console.log('hello', response.detail, response.error);
+			}
+		})
+		.catch(function(error){
+			console.log(error);
+		});
+};
 
 var home = component({
+	oninit: function(vnode){
+		var self = this;
+		var user = store().user.detail;
+		self.login = "Login";
+		if("id" in user) {
+			self.login = "Logout";
+		}
+	},
+
 	view: function(vnode){
+		var self = this;
 		return _("div", {class: "jumbotron"},
 				_("h1", "User Calorie Management"),
-				_("p", "Django and Mithril App for managing calorie consumption of Users")
+				_("p", "Django and Mithril App for managing calorie consumption of Users"),
+				_("button", {class: "btn btn-success", onclick: logout}, self.login)
 			);
 	}
 });
-
-// var HomePage = (args) => {
-// 	args.content = home;
-// 	return _(App, args);
-// };
 
 var homePage = function(args) {
 	args.content = home;
 	return _(App, args);
 };
 
-module.exports = homePage({});
-},{"./app.js":38,"mithril":33,"mithril-componentx":31}],42:[function(require,module,exports){
+module.exports = home;
+},{"../stores/mealStore.js":48,"./app.js":38,"axios":1,"mithril":33,"mithril-componentx":31}],42:[function(require,module,exports){
 "use strict";
 
 var _ = require('mithril');
@@ -31644,6 +31675,7 @@ var content = component({
 	},
 
 	oninit: function(vnode){
+		
 		this.id = _.route.param("id");
 
 		this.model = powerform({
@@ -31662,6 +31694,9 @@ var content = component({
 
 	saveMeal: function(e) {
 		e.preventDefault();
+		if (!this.model.isValid()){
+			return;
+		}
 		var newMeal = this.model.data();
 		newMeal.user = 1;
 		if (!this.id){
@@ -31693,13 +31728,24 @@ var content = component({
 	}
 });
 
-var manageMealPage = function(args) {
-	args.content = content;
-	return _(App, args);
-};
+var manageMealPage = component({
+	base: App,
+	getDefaultAttrs: function(vnode) {
+		return {
+			content: content
+		};
+	}
 
-module.exports = manageMealPage({});
-},{"../../stores/mealStore.js":47,"../app.js":38,"./mealForm.js":43,"axios":1,"mithril":33,"mithril-componentx":31,"powerform":34,"toastr":36,"validatex":37}],43:[function(require,module,exports){
+	// oninit: function(vnode) {
+	// 	var user = store().user.detail;
+	// 	if(!("id" in user)) {
+	// 		_.route("/login/");
+	// 	}
+	// }
+});
+
+module.exports = manageMealPage;
+},{"../../stores/mealStore.js":48,"../app.js":38,"./mealForm.js":43,"axios":1,"mithril":33,"mithril-componentx":31,"powerform":34,"toastr":36,"validatex":37}],43:[function(require,module,exports){
 "use strict";
 
 var m = require('mithril');
@@ -31758,11 +31804,6 @@ var component = require('mithril-componentx');
 
 var MealList = component({
 	getTableContent: function(vnode){
-		/*var mealList = [
-			{id: 1, name: "Rice", date: "2016-10-01", time: "09:00:00", calorie: 100},
-			{id: 2, name: "Meat", date: "2016-10-01", time: "12:00:00", calorie: 200},
-			{id: 3, name: "Banana", date: "2016-10-01", time: "15:00:00", calorie: 150}
-		]; */
 		var mealList = vnode.attrs.mealData;
 		return mealList.map(function(meal){
 			return m("tr", {dataId: meal.id},
@@ -31805,6 +31846,10 @@ var store = require('../../stores/mealStore.js');
 
 var meals = component({
 	oninit: function(vnode){
+		var user = store().user.detail;
+		if(!("id" in user)) {
+			m.route("/login/");
+		}
 		store.dispatch("meal",
 			{method: "get", url: 'http://localhost:8000/meal/api/list/', data: ''});
 	},
@@ -31826,12 +31871,111 @@ var mealPage = function(args) {
 };
 
 module.exports = mealPage({});
-},{"../../stores/mealStore.js":47,"../app.js":38,"./mealList.js":44,"mithril":33,"mithril-componentx":31}],46:[function(require,module,exports){
+},{"../../stores/mealStore.js":48,"../app.js":38,"./mealList.js":44,"mithril":33,"mithril-componentx":31}],46:[function(require,module,exports){
+"use strict";
+
+var _ = require('mithril');
+var component = require('mithril-componentx');
+var powerform = require('powerform');
+var validatex = require('validatex');
+var axios = require('axios');
+
+var App = require('../app.js');
+var Input = require('../common/textInput.js');
+var store = require('../../stores/mealStore.js');
+
+// var ispassword = function(value){
+// 	if (!value) {
+// 		return "Password is required.";
+// 	}
+
+// 	if (!/.{8,}/.test(value)) {
+// 		return "Password must be at least 8 characters long.";
+// 	}
+// }
+
+var loginView = component({
+	oninit: function(vnode){
+		this.model = powerform({
+			username: {validator: validatex.required(true, "Username Name is required")},
+			password: {validator: validatex.required(true, "Password is required")}
+		});
+	},
+
+	submit: function(e) {
+		var self = this;
+		e.preventDefault();
+		if (!self.model.isValid()){
+			return;
+		}
+		axios({
+			url: 'http://localhost:8000/user/api/login/',
+			method: "post",
+			data: self.model.data(),
+			xsrfCookieName: "csrftoken",
+			xsrfHeaderName: "X-CSRFToken"
+		})
+		.then(function(response){
+			if (response.status === 200){
+				store.dispatch("user.setUserDetail", response.data);
+				console.log(store().user.detail);
+				_.route('/meal/');
+				_.redraw();
+			}
+			else {
+				console.log('hello', response.detail, response.error);
+			}
+		})
+		.catch(function(error){
+			console.log(error);
+		});
+	},
+
+	view: function(vnode){
+		var self = this;
+		
+		return _("div", {style: {width: "350px"}},
+				_("h3", "User Calorie Management"),
+				_("form", {class: "form", onsubmit: this.submit.bind(this)},
+					_(Input,
+						{type: "text", model: this.model.username,
+						label: "Username", placeholder: "Type your username"}),
+					_(Input,
+						{type: "password", model: this.model.password,
+						label: "Password", placeholder: "Type your password"}),
+					_("input",
+						{type: "submit", class: "btn btn-success", value: "Sign in"})
+				)
+			);
+	}
+});
+
+var LoginPage = component({
+	base: App,
+	getDefaultAttrs: function(vnode) {
+		return {
+			content: loginView
+		};
+	},
+
+	oninit: function(vnode) {
+		var user = store().user.detail;
+		if("id" in user) {
+			_.route("/meals/");
+		}
+	}
+});
+
+module.exports = LoginPage;
+
+},{"../../stores/mealStore.js":48,"../app.js":38,"../common/textInput.js":40,"axios":1,"mithril":33,"mithril-componentx":31,"powerform":34,"validatex":37}],47:[function(require,module,exports){
 var _ = require('mithril');
 
 var HomePage = require('./components/homePage.js');
 var MealPage = require('./components/meals/mealPage.js');
 var ManageMealPage = require('./components/meals/manageMealPage.js');
+
+var Login = require('./components/users/login.js');
 
 _.route.mode = "hash";
 
@@ -31839,10 +31983,11 @@ _.route(document.body, "/", {
 	"/": HomePage,
 	"/meals/": MealPage,
 	"/meals/add/": ManageMealPage,
-	"/meals/add/:id/": ManageMealPage
+	"/meals/add/:id/": ManageMealPage,
+	"/login/": Login
 });
 
-},{"./components/homePage.js":41,"./components/meals/manageMealPage.js":42,"./components/meals/mealPage.js":45,"mithril":33}],47:[function(require,module,exports){
+},{"./components/homePage.js":41,"./components/meals/manageMealPage.js":42,"./components/meals/mealPage.js":45,"./components/users/login.js":46,"mithril":33}],48:[function(require,module,exports){
 "use strict";
 
 var storeImport = require('elastic-store');
@@ -31874,7 +32019,7 @@ var api = function(actionPath, next, astore){
 				astore.dispatch(actionPath + ".setData", response.data);
 			}
 
-			else if(payload.method === "post"){
+			else if(payload.method === "post" && !payload.type){
 				astore.dispatch(actionPath + ".create", response.data);
 			}
 
@@ -31906,6 +32051,20 @@ var actionTypes = function(initialData){
 			console.log('setdata', state.data);
 			return state;
 		},
+
+		setUserDetail: function(state, data){
+			if ("detail" in state){
+				state.detail = data;
+			}
+			return state;
+		},
+
+		unsetUserDetail: function(state){
+			if ("detail" in state){
+				state.detail = {};
+			}
+			return state;
+		},
 		
 		create: function(state, newRecord) {
 			state.data.push(newRecord);			
@@ -31933,7 +32092,7 @@ var actionTypes = function(initialData){
 
 var actions = {
 	meal: actionTypes({type: "meal", data: []}),
-	user: actionTypes({type: "user", data: []})
+	user: actionTypes({type: "user", data: [], detail: {}})
 };
 
 var middlewares = [logger.logger(), api];
@@ -31942,4 +32101,4 @@ var astore = store(actions, middlewares);
 
 module.exports = astore;
 
-},{"axios":1,"elastic-store":28,"elastic-store-logger":27,"lodash":30,"mithril":33}]},{},[46]);
+},{"axios":1,"elastic-store":28,"elastic-store-logger":27,"lodash":30,"mithril":33}]},{},[47]);

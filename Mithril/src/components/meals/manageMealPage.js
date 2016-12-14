@@ -60,6 +60,7 @@ var content = component({
 	},
 
 	oninit: function(vnode){
+		
 		this.id = _.route.param("id");
 
 		this.model = powerform({
@@ -78,6 +79,9 @@ var content = component({
 
 	saveMeal: function(e) {
 		e.preventDefault();
+		if (!this.model.isValid()){
+			return;
+		}
 		var newMeal = this.model.data();
 		newMeal.user = 1;
 		if (!this.id){
@@ -109,9 +113,20 @@ var content = component({
 	}
 });
 
-var manageMealPage = function(args) {
-	args.content = content;
-	return _(App, args);
-};
+var manageMealPage = component({
+	base: App,
+	getDefaultAttrs: function(vnode) {
+		return {
+			content: content
+		};
+	}
 
-module.exports = manageMealPage({});
+	// oninit: function(vnode) {
+	// 	var user = store().user.detail;
+	// 	if(!("id" in user)) {
+	// 		_.route("/login/");
+	// 	}
+	// }
+});
+
+module.exports = manageMealPage;
