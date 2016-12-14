@@ -29,7 +29,7 @@ var api = function(actionPath, next, astore){
 				astore.dispatch(actionPath + ".setData", response.data);
 			}
 
-			else if(payload.method === "post"){
+			else if(payload.method === "post" && !payload.type){
 				astore.dispatch(actionPath + ".create", response.data);
 			}
 
@@ -61,6 +61,13 @@ var actionTypes = function(initialData){
 			console.log('setdata', state.data);
 			return state;
 		},
+
+		setUserDetail: function(state, data){
+			if ("detail" in state){
+				state.detail = data;
+			}
+			return state;
+		},
 		
 		create: function(state, newRecord) {
 			state.data.push(newRecord);			
@@ -88,7 +95,7 @@ var actionTypes = function(initialData){
 
 var actions = {
 	meal: actionTypes({type: "meal", data: []}),
-	user: actionTypes({type: "user", data: []})
+	user: actionTypes({type: "user", data: [], detail: {}})
 };
 
 var middlewares = [logger.logger(), api];
