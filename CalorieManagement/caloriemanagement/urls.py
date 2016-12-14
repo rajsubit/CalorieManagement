@@ -16,7 +16,6 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-
 urlpatterns = [
     url(
         r'^admin/',
@@ -26,5 +25,10 @@ urlpatterns = [
     url(
         r'^meal/',
         include('meal.urls', namespace='meal')
+    ),
+
+    url(
+        r'user/',
+        include('user.urls', namespace='user')
     ),
 ]
