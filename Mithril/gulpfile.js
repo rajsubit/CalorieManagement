@@ -17,11 +17,12 @@ var config = {
 		js: './src/**/*.js',
 		images: './src/images/*',
 		css: [
-			'node_modules/bootstrap/dist/css/bootstrap.min.css',
-			'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
-			'node_modules/toastr/toastr.css'
+			'../node_modules/bootstrap/dist/css/bootstrap.min.css',
+			'../node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+			'../node_modules/toastr/toastr.css'
 		],
 		dist: './dist',
+		static: '../CalorieManagement/static',
 		mainJs: './src/main.js'
 	}
 }
@@ -48,30 +49,57 @@ gulp.task('html', function(){
 		.pipe(connect.reload());
 });
 
+// gulp.task('js', function(){
+// 	browserify(config.paths.mainJs)
+// 		.transform(mithrilify)
+// 		.bundle()
+// 		.on('error', console.error.bind(console))
+// 		.pipe(source('bundle.js'))
+// 		.pipe(gulp.dest(config.paths.dist + '/scripts'))
+// 		.pipe(connect.reload());
+// });
+
 gulp.task('js', function(){
 	browserify(config.paths.mainJs)
 		.transform(mithrilify)
 		.bundle()
 		.on('error', console.error.bind(console))
 		.pipe(source('bundle.js'))
-		.pipe(gulp.dest(config.paths.dist + '/scripts'))
+		.pipe(gulp.dest(config.paths.static + '/scripts'))
 		.pipe(connect.reload());
 });
+
+
+// gulp.task('css', function(){
+// 	gulp.src(config.paths.css)
+// 		.pipe(concat('bundle.css'))
+// 		.pipe(gulp.dest(config.paths.dist + '/css'));
+// });
 
 gulp.task('css', function(){
 	gulp.src(config.paths.css)
 		.pipe(concat('bundle.css'))
-		.pipe(gulp.dest(config.paths.dist + '/css'));
+		.pipe(gulp.dest(config.paths.static + '/css'));
 });
+
+// gulp.task('images', function(){
+// 	gulp.src(config.paths.images)
+// 		.pipe(gulp.dest(config.paths.dist + '/images'))
+// 		.pipe(connect.reload());
+
+// 	gulp.src('./src/favicon.ico')
+// 		.pipe(gulp.dest(config.paths.dist));
+// });
 
 gulp.task('images', function(){
 	gulp.src(config.paths.images)
-		.pipe(gulp.dest(config.paths.dist + '/images'))
+		.pipe(gulp.dest(config.paths.static + '/images'))
 		.pipe(connect.reload());
 
 	gulp.src('./src/favicon.ico')
-		.pipe(gulp.dest(config.paths.dist));
+		.pipe(gulp.dest(config.paths.static + '/images'));
 });
+
 
 gulp.task('lint', function(){
 	return gulp.src(config.paths.js)

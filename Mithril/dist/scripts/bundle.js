@@ -31563,8 +31563,9 @@ var axios = require('axios');
 var App = require('./app.js');
 var store = require('../stores/mealStore.js');
 
-var logout = function(){
-	axios({
+var logout = function(e){
+	e.preventDefault();
+	return axios({
 			url: 'http://localhost:8000/user/api/logout/',
 			method: "post",
 			xsrfCookieName: "csrftoken",
@@ -31918,7 +31919,7 @@ var loginView = component({
 		.then(function(response){
 			if (response.status === 200){
 				store.dispatch("user.setUserDetail", response.data);
-				console.log(store().user.detail);
+				console.log(store().user.detail, 'cookie', response.cookie);
 				_.route('/meal/');
 				_.redraw();
 			}

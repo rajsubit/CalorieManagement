@@ -13,6 +13,7 @@ var api = function(actionPath, next, astore){
 	return function(state, payload) {
 		// if payload.method and payload.url does not exist then not an API call
 		if (!payload.method && !payload.url){
+
 			return next(state, payload);
 		}
 
@@ -63,15 +64,13 @@ var actionTypes = function(initialData){
 		},
 
 		setUserDetail: function(state, data){
-			if ("detail" in state){
-				state.detail = data;
-			}
+			state.detail = data;
 			return state;
 		},
 
 		unsetUserDetail: function(state){
 			if ("detail" in state){
-				state.detail = {};
+				state.detail = null;
 			}
 			return state;
 		},
@@ -102,7 +101,7 @@ var actionTypes = function(initialData){
 
 var actions = {
 	meal: actionTypes({type: "meal", data: []}),
-	user: actionTypes({type: "user", data: [], detail: {}})
+	user: actionTypes({type: "user", data: [], detail: null})
 };
 
 var middlewares = [logger.logger(), api];

@@ -1,7 +1,6 @@
 "use strict";
 
 var _ = require('mithril');
-var m = require('mithril');
 var component = require('mithril-componentx');
 
 var App = require('../app.js');
@@ -9,29 +8,30 @@ var MealList = require('./mealList.js');
 var store = require('../../stores/mealStore.js');
 
 var meals = component({
-	oninit: function(vnode){
-		var user = store().user.detail;
-		if(!("id" in user)) {
-			m.route("/login/");
-		}
-		store.dispatch("meal",
-			{method: "get", url: 'http://localhost:8000/meal/api/list/', data: ''});
-	},
-	view: function(vnode){
-		return m("div",
-				m("h1", "MealList"),
-				m(
+	base: App,
+	getDefaultAttrs: function(vnode){
+		return {
+			content: _("div",
+				_("h1", "MealList"),
+				_(
 					"a",
-					{href: "/meals/add/", config: m.route, class: "btn btn-primary"},
+					{href: "/meals/add/", config: _.route, class: "btn btn-primary"},
 					"Add Meal"),
-				m(MealList, {mealData: store().meal.data})
-			);
+				_(MealList, {mealData: store().meal.data})
+			)
+		}; 
+	},
+
+	oninit: function(vnode){
+		var user = store().user;
+		if(!user.detail) {
+			_.route("/login/");
+		}
+		else {
+			store.dispatch("meal",
+				{method: "get", url: 'http://localhost:8000/meal/api/list/', data: ''});
+		}
 	}
 });
 
-var mealPage = function(args) {
-	args.content = meals;
-	return _(App, args);
-};
-
-module.exports = mealPage({});
+module.exports = meals;

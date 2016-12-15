@@ -1,6 +1,7 @@
 from rest_framework.generics import (
     CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 )
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Meal
 from .serializers import MealSerializer
@@ -16,6 +17,10 @@ class MealListAPI(ListAPIView):
 
     serializer_class = MealSerializer
     queryset = Meal.objects.all()
+
+    def list(self, request):
+        print (request.user)
+        return super(MealListAPI, self).list(request)
 
 
 class MealDetailAPI(RetrieveUpdateDestroyAPIView):

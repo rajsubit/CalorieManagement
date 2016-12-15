@@ -42,18 +42,14 @@ var loginView = component({
 			xsrfHeaderName: "X-CSRFToken"
 		})
 		.then(function(response){
-			if (response.status === 200){
-				store.dispatch("user.setUserDetail", response.data);
-				console.log(store().user.detail);
-				_.route('/meal/');
-				_.redraw();
-			}
-			else {
-				console.log('hello', response.detail, response.error);
-			}
+			store.dispatch("user.setUserDetail", response.data);
+			_.route('/meal/');
 		})
 		.catch(function(error){
 			console.log(error);
+		})
+		.then(function(){
+			_.redraw();
 		});
 	},
 
@@ -85,8 +81,8 @@ var LoginPage = component({
 	},
 
 	oninit: function(vnode) {
-		var user = store().user.detail;
-		if("id" in user) {
+		var user = store().user;
+		if(user.detail) {
 			_.route("/meals/");
 		}
 	}

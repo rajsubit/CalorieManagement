@@ -27,6 +27,7 @@ def login(request):
     message = ''
     if not username or not password:
         message = "Please pass both username and password"
+        print(message)
         return Response(
             {"detail": message},
             status=status.HTTP_401_UNAUTHORIZED
@@ -34,6 +35,7 @@ def login(request):
     user = auth.authenticate(username=username, password=password)
     if not user:
         message = "Incorrect username or password"
+        print(message)
         return Response(
             {"detail": message},
             status=status.HTTP_401_UNAUTHORIZED
@@ -41,6 +43,7 @@ def login(request):
     auth.login(request, user)
     serializer = UserSerializer(user)
     message = "Login Successful"
+    print(message)
     return Response(dict(serializer.data), status=status.HTTP_200_OK)
 
 
@@ -49,10 +52,12 @@ def login(request):
 def logout(request):
     """ View to logout users """
     if not request.user.is_authenticated():
+        print("not authenticated")
         return Response(
             {"detail": "Please login to logout."},
             status=status.HTTP_400_BAD_REQUEST)
     auth.logout(request)
+    print("authenticated")
     return Response(
         {"detail": "Successfully logged out."},
         status=status.HTTP_200_OK)
