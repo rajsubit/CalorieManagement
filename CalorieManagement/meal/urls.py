@@ -1,24 +1,13 @@
-from django.conf.urls import url
+from rest_framework import routers
 
-from .api import MealCreateAPI, MealListAPI, MealDetailAPI
+from .api import MealAPI
+
+router = routers.SimpleRouter()
+
+router.register(r"api/meal", MealAPI, base_name="meal")
 
 
 urlpatterns = [
-    url(
-        regex=r'^api/create/$',
-        view=MealCreateAPI.as_view(),
-        name='meal_create_api'
-    ),
-
-    url(
-        regex=r'^api/list/$',
-        view=MealListAPI.as_view(),
-        name='meal_list_api'
-    ),
-
-    url(
-        regex=r'^api/detail/(?P<pk>[0-9]+)/$',
-        view=MealDetailAPI.as_view(),
-        name='meal_detail_api'
-    )
 ]
+
+urlpatterns += router.urls

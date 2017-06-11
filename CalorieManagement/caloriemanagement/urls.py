@@ -30,12 +30,12 @@ urlpatterns = [
 	),
 
     url(
-        r'^meal/',
+        r'',
         include('meal.urls', namespace='meal')
     ),
 
     url(
-        r'user/',
+        r'',
         include('user.urls', namespace='user')
     ),
 ]

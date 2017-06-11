@@ -23,8 +23,8 @@ var ManageMealPage = React.createClass({
 		};
 	},
 
-	componentWillMount: function() {
-		var mealId = this.props.params.id;
+	componentDidMount: function() {
+		var mealId = parseInt(this.props.params.id);
 		if (mealId) {
 			this.setState({meal: MealStore.getMealById(mealId)});
 		}
@@ -100,6 +100,11 @@ var ManageMealPage = React.createClass({
 	},
 
 	render: function() {
+		if (this.props.params.id && !this.state.meal.id) {
+			return (
+				<div className="loader"></div>
+			);
+		}
 		return (
 			<MealForm meal={this.state.meal}
 				onChange={this.setMealState}

@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from .manager import MealManager
-
 
 class Meal(models.Model):
     """ Meal model contains detail information about meals"""
@@ -21,9 +19,6 @@ class Meal(models.Model):
     calorie = models.FloatField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-
-    # Object Manager:
-    objects = MealManager()
 
     # Meta and Strings:
     class Meta:

@@ -1,75 +1,98 @@
 "use strict";
 
 //This file is mocking a web API by hitting hard coded data.
-var meals = [];
 var _ = require('lodash');
-$ = jQuery = require('jquery');
+var axios = require('axios');
+var Dispatcher = require('../dispatcher/appDispatcher');
+var ActionTypes = require('../constants/actionTypes');
+var MealStore = require('../stores/mealStore');
 
-//This would be performed on the server in a real app. Just stubbing in.
-// var generateId = function(author) {
-//  return author.firstName.toLowerCase() + '-' + author.lastName.toLowerCase();
-// };
 
 var clone = function(item) {
-    return JSON.parse(JSON.stringify(item)); //return cloned copy so that the item is passed by value instead of by reference
+    // return cloned copy so that the item is passed by value instead of by reference
+    return JSON.parse(JSON.stringify(item));
+};
+
+var api = function(config) {
+    var apiUrl = config.url;
+    if (config.id) {
+        apiUrl += config.id + "/";
+    }
+    return axios({
+        url: apiUrl,
+        method: config.method,
+        params: config.params,
+        data: config.data,
+        xsrfCookieName: "csrftoken",
+        xsrfHeaderName: "X-CSRFToken"})
+        .then(function(res) {
+            config.onSuccess(res.data);
+            return res;
+        })
+        .catch(function(error) {
+            console.log("error in axios:: ", error);
+            config.onFailure(error.response.data);
+            return error.response;
+        });
 };
 
 var MealApi = {
     getAllMeals: function() {
-        var mealListUrl = 'http://localhost:8000/meal/api/list/';
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: mealListUrl,
-            success: function(data) {
-                meals = data;
+        return api({
+            url: "http://localhost:8000/api/meal/",
+            method: "get",
+            onSuccess: function(data) {
+                Dispatcher.dispatch({
+                    actionType: ActionTypes.INITIALIZE,
+                    initialData: {
+                        meals: data
+                    }
+                });
+            },
+            onFailure: function(error) {
+                console.log(error);
+                alert(error);
             }
         });
-        return clone(meals);
     },
 
-    getMealById: function(id) {
-        var meal = null;
-        var mealRetrieveUrl = 'http://localhost:8000/meal/api/detail/' + id.toString() + '/';
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: mealRetrieveUrl,
-            success: function(data) {
-                meal = data;
+    getMealById: function(mealId) {
+        return api({
+            url: "http://localhost:8000/api/meal/",
+            method: "get",
+            id: mealId,
+            onSuccess: function(data) {
+                return data;
+            },
+            onFailure: function(error) {
+                console.log(error);
+                alert(error);
             }
         });
-        return clone(meal);
-    },
-
-    getMealByUser: function(userId) {
-        // var meal = _.find(authors, {id: id});
-        // return clone(author);
     },
     
     updateMeal: function(meal) {
-        var mealUpdateUrl = 'http://localhost:8000/meal/api/detail/' + meal.id.toString() + '/';
-        var data = {
-            user: meal.user,
-            name: meal.name,
-            date: meal.date,
-            time: meal.time,
-            calorie: meal.calorie
-        };
-        $.ajax({
-            url: mealUpdateUrl,
-            type: "PUT",
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json",
-            success: function(responseData) {
-                console.log('Data updated successfully');
+        var updatedMeal = null;
+        var id = meal.id;
+        delete meal.id;
+        api({
+            url: "http://localhost:8000/api/meal/",
+            id: id,
+            data: meal,
+            method: "put",
+            onSuccess: function(data) {
+                updatedMeal = data;
+                Dispatcher.dispatch({
+                    actionType: ActionTypes.UPDATE_MEAL,
+                    meal: data
+                });
             },
-            error: function( xhr, status, errorThrown ) {
-                alert(errorThrown);
+            onFailure: function(error) {
+                console.log(error);
+                alert(error);
             }
         });
-        return clone(meal);
+        return updatedMeal;
     },
 
     // createMeal: function(meal) {
@@ -98,29 +121,22 @@ var MealApi = {
     // },
 
     deleteMeal: function(meal) {
-        var mealDeleteUrl = 'http://localhost:8000/meal/api/detail/' + meal.id.toString() + '/';
-        var data = {
-            user: meal.user,
-            name: meal.name,
-            date: meal.date,
-            time: meal.time,
-            calorie: meal.calorie
-        };
-        $.ajax({
-            url: mealDeleteUrl,
-            type: "DELETE",
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json",
-            success: function(responseData) {
-                console.log('Data deleted successfully');
+        return api({
+            url: "http://localhost:8000/api/meal/",
+            id: meal.id,
+            method: "delete",
+            onSuccess: function(data) {
+                Dispatcher.dispatch({
+                    actionType: ActionTypes.DELETE_MEAL,
+                    meal: meal
+                });
             },
-            error: function( xhr, status, errorThrown ) {
-                alert(errorThrown);
+            onFailure: function(error) {
+                console.log(error);
+                alert(error);
             }
         });
-        return clone(meal);
     }
 };
 
-module.exports = MealApi;
+module.exports = {api: api, MealApi: MealApi};
