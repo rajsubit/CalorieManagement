@@ -5,7 +5,7 @@ from rest_framework import routers
 from .api import UserAPI, login, logout
 
 router = routers.SimpleRouter()
-router.register(r'api', UserAPI)
+router.register(r'api/user', UserAPI)
 
 urlpatterns = [
 	url(
