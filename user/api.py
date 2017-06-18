@@ -11,53 +11,55 @@ from .serializers import UserSerializer
 
 
 class UserAPI(ModelViewSet):
-    """ View sets for UserProfile """
+	"""
+	View sets for UserProfile
+	"""
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
 
 
 @api_view(["POST"])
 @renderer_classes([JSONRenderer])
 def login(request):
-    """ View to authenticate user and login"""
+	"""
+	View to authenticate user and login
+	"""
 
-    username = request.data.get("username")
-    password = request.data.get("password")
-    message = ''
-    if not username or not password:
-        message = "Please pass both username and password"
-        print(message)
-        return Response(
-            {"detail": message},
-            status=status.HTTP_401_UNAUTHORIZED
-        )
-    user = auth.authenticate(username=username, password=password)
-    if not user:
-        message = "Incorrect username or password"
-        print(message)
-        return Response(
-            {"detail": message},
-            status=status.HTTP_401_UNAUTHORIZED
-        )
-    auth.login(request, user)
-    serializer = UserSerializer(user)
-    message = "Login Successful"
-    print(message)
-    return Response(dict(serializer.data), status=status.HTTP_200_OK)
+	username = request.data.get("username")
+	password = request.data.get("password")
+	message = ''
+	if not username or not password:
+		message = "Please pass both username and password"
+		return Response(
+			{"detail": message},
+			status=status.HTTP_401_UNAUTHORIZED
+		)
+	user = auth.authenticate(username=username, password=password)
+	if not user:
+		message = "Incorrect username or password"
+		return Response(
+			{"detail": message},
+			status=status.HTTP_401_UNAUTHORIZED
+		)
+	auth.login(request, user)
+	serializer = UserSerializer(user)
+	message = "Login Successful"
+	return Response(dict(serializer.data), status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
 @renderer_classes([JSONRenderer])
 def logout(request):
-    """ View to logout users """
-    if not request.user.is_authenticated():
-        print("not authenticated")
-        return Response(
-            {"detail": "Please login to logout."},
-            status=status.HTTP_400_BAD_REQUEST)
-    auth.logout(request)
-    print("authenticated")
-    return Response(
-        {"detail": "Successfully logged out."},
-        status=status.HTTP_200_OK)
+	"""
+	View to logout users
+	"""
+
+	if not request.user.is_authenticated():
+		return Response(
+			{"detail": "Please login to logout."},
+			status=status.HTTP_400_BAD_REQUEST)
+	auth.logout(request)
+	return Response(
+		{"detail": "Successfully logged out."},
+		status=status.HTTP_200_OK)

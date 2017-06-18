@@ -9,3 +9,6 @@ __pycache__
 # npm
 node_modules/
 npm-debug.log
+
+# static js
+static/scripts/

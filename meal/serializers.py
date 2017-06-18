@@ -4,7 +4,9 @@ from .models import Meal
 
 
 class MealSerializer(serializers.ModelSerializer):
-    """ Serializer class for Meal Model. """
+    """
+    Serializer class for Meal Model.
+    """
 
     user_fullname = serializers.CharField(
         source='user.get_full_name',

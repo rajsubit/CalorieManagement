@@ -4,7 +4,9 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Meal(models.Model):
-    """ Meal model contains detail information about meals"""
+    """
+    Meal model contains detail information about meals
+    """
 
     # Relations:
     user = models.ForeignKey(
